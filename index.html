@@ -64,7 +64,7 @@
 
       const parts = saldoInput.split(':');
       if (parts.length !== 2) {
-        document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm (bijv. 86:03)';
+        document.getElementById('resultaat').textContent = 'HET IS MET DUBBEL PUNT dus voer de tijd in als uu:mm (bijv. 86:03)';
         return;
       }
 
@@ -72,7 +72,7 @@
       const minuten = parseFloat(parts[1]);
 
       if (isNaN(uren) || isNaN(minuten)) {
-        document.getElementById('resultaat').textContent = 'HET IS MET DUBBEL PUNT. Gebruik het formaat uu:mm (bijv. 86:03)';
+        document.getElementById('resultaat').textContent = 'Gebruik het formaat uu:mm (bijv. 86:03)';
         return;
       }
 
