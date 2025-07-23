@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resterende recup uren berekenen - VCET</title>
+  <title>Resterende Recup Uren Berekenen</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -45,12 +45,12 @@
   <div class="logo">
     <img src="vcet-logo.png" alt="VCET Logo">
   </div>
-  <h2>Saldo naar Werkdagen Calculator - VCET</h2>
+  <h2>Resterende Recup Uren Berekenen</h2>
 
   <label>Saldo tijd (uren:minuten), bijv. <strong>86:03</strong>:</label>
   <input type="text" id="saldo" placeholder="uu:mm">
 
-  <label>Volledige werkdagen aftrekken:</label>
+  <label>Rustdagen aftrekken:</label>
   <input type="number" id="dagen">
 
   <button onclick="bereken()">Bereken</button>
@@ -64,7 +64,7 @@
 
       const parts = saldoInput.split(':');
       if (parts.length !== 2) {
-        document.getElementById('resultaat').textContent = 'HET IS MET DUBBEL PUNT dus voer de tijd in als uu:mm (bijv. 86:03)';
+        document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm (bijv. 86:03)';
         return;
       }
 
@@ -72,7 +72,7 @@
       const minuten = parseFloat(parts[1]);
 
       if (isNaN(uren) || isNaN(minuten)) {
-        document.getElementById('resultaat').textContent = 'Gebruik het formaat uu:mm (bijv. 86:03)';
+        document.getElementById('resultaat').textContent = 'Ongeldige invoer. Gebruik het formaat uu:mm (bijv. 86:03)';
         return;
       }
 
