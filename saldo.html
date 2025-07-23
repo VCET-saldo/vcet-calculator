@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saldo naar Werkdagen - VCET</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2em;
+      background-color: #1e1e2f;
+      color: #e0e0e0;
+      text-align: center;
+    }
+    .logo {
+      margin-bottom: 20px;
+    }
+    .logo img {
+      max-width: 200px;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      text-align: left;
+      width: 200px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1565c0;
+    }
+    #resultaat {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="vcet-logo.png" alt="VCET Logo">
+  </div>
+  <h2>Saldo naar Werkdagen Calculator - VCET</h2>
+
+  <label>Saldo tijd (uren:minuten), bijv. <strong>86:03</strong>:</label>
+  <input type="text" id="saldo" placeholder="uu:mm">
+
+  <label>Volledige werkdagen aftrekken:</label>
+  <input type="number" id="dagen">
+
+  <button onclick="bereken()">Bereken</button>
+
+  <div id="resultaat"></div>
+
+  <script>
+    function bereken() {
+      const saldoInput = document.getElementById('saldo').value.trim();
+      const dagenAftrekken = parseFloat(document.getElementById('dagen').value) || 0;
+
+      const parts = saldoInput.split(':');
+      if (parts.length !== 2) {
+        document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm (bijv. 86:03)';
+        return;
+      }
+
+      const uren = parseFloat(parts[0]);
+      const minuten = parseFloat(parts[1]);
+
+      if (isNaN(uren) || isNaN(minuten)) {
+        document.getElementById('resultaat').textContent = 'Ongeldige invoer. Gebruik het formaat uu:mm (bijv. 86:03)';
+        return;
+      }
+
+      const totaalUren = uren + (minuten / 60);
+      const werkdagUren = 7.6;
+      const resterendeUren = totaalUren - (dagenAftrekken * werkdagUren);
+
+      const volledigeDagen = Math.floor(resterendeUren / werkdagUren);
+      const overgeblevenUren = resterendeUren % werkdagUren;
+      const urenDeel = Math.floor(overgeblevenUren);
+      const minutenDeel = Math.round((overgeblevenUren % 1) * 60);
+
+      const resultaat = document.getElementById('resultaat');
+
+      if (resterendeUren < 0) {
+        resultaat.textContent = `Let op: je hebt een negatief saldo van ${Math.abs(resterendeUren).toFixed(2)} uur.`;
+      } else {
+        resultaat.textContent = `Resterende tijd: ${resterendeUren.toFixed(2)} uur → ${volledigeDagen} dagen, ${urenDeel} uur, ${minutenDeel} minuten`;
+      }
+    }
+  </script>
+</body>
+</html>
