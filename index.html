@@ -91,18 +91,23 @@
         return;
       }
 
-      // Stap 1: Omzetten naar totale minuten
-      const totaleMinuten = (uren * 60) + minuten;
-      // Stap 2: Delen door 456 minuten per dag
-      const totaleDagen = totaleMinuten / 456;
-      // Stap 3: Aftrekken van rustdagen
-      const oppDagen = totaleDagen - dagenAftrekken;
+      // Stap 1: Omzetten naar decimale uren
+      const totaleUren = uren + (minuten / 60);
+      // Stap 2: Trek rustdagen af (7.6 uur per dag)
+      const werkdagUren = 7.6;
+      const resterendeUren = totaleUren - (dagenAftrekken * werkdagUren);
+
+      // Stap 3: Converteer resterende uren naar dagen, uren, minuten
+      const volledigeDagen = Math.floor(resterendeUren / werkdagUren);
+      const overgeblevenUren = resterendeUren % werkdagUren;
+      const urenDeel = Math.floor(overgeblevenUren);
+      const minutenDeel = Math.round((overgeblevenUren % 1) * 60);
 
       const resultaat = document.getElementById('resultaat');
-      if (oppDagen < 0) {
-        resultaat.textContent = `Let op: je hebt een negatief OPP-saldo van ${Math.abs(oppDagen).toFixed(2)} dagen.`;
+      if (resterendeUren < 0) {
+        resultaat.textContent = `Let op: je hebt een negatief saldo van ${Math.abs(resterendeUren).toFixed(2)} uur.`;
       } else {
-        resultaat.textContent = `Aantal OPP-dagen: ${oppDagen.toFixed(2)}`;
+        resultaat.textContent = `Resterende tijd: ${resterendeUren.toFixed(2)} uur → ${volledigeDagen} dagen, ${urenDeel} uur, ${minutenDeel} minuten`;
       }
     }
   </script>
