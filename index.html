@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resterende recup uren berekenen</title>
+  <title>Resterende Recup Uren Berekenen</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -45,12 +46,12 @@
   <div class="logo">
     <img src="vcet-logo.png" alt="VCET Logo">
   </div>
-  <h2>Resterende recup uren berekenen</h2>
+  <h2>Resterende Recup Uren Berekenen</h2>
 
-  <label>Saldo tijd (uren:minuten), bijv. <strong>86:03</strong>:</label>
-  <input type="text" id="saldo" placeholder="uu:mm">
+  <label>Saldo tijd (uren:minuten), bijv. <strong>86:03</strong> of <strong>86.03</strong>:</label>
+  <input type="text" id="saldo" placeholder="uu:mm of uu.mm">
 
-  <label>Teller rustdagen:</label>
+  <label>Rustdagen aftrekken:</label>
   <input type="number" id="dagen">
 
   <button onclick="bereken()">Bereken</button>
@@ -62,35 +63,46 @@
       const saldoInput = document.getElementById('saldo').value.trim();
       const dagenAftrekken = parseFloat(document.getElementById('dagen').value) || 0;
 
-      const parts = saldoInput.split(':');
-      if (parts.length !== 2) {
-        document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm (bijv. 86:03)';
+      // Ondersteun zowel : als . als scheidingsteken
+      let uren, minuten;
+      if (saldoInput.includes(':')) {
+        const parts = saldoInput.split(':');
+        if (parts.length !== 2) {
+          document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm of uu.mm (bijv. 86:03 of 86.03)';
+          return;
+        }
+        uren = parseFloat(parts[0]);
+        minuten = parseFloat(parts[1]);
+      } else if (saldoInput.includes('.')) {
+        const parts = saldoInput.split('.');
+        if (parts.length !== 2) {
+          document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm of uu.mm (bijv. 86:03 of 86.03)';
+          return;
+        }
+        uren = parseFloat(parts[0]);
+        minuten = parseFloat(parts[1]);
+      } else {
+        document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm of uu.mm (bijv. 86:03 of 86.03)';
         return;
       }
 
-      const uren = parseFloat(parts[0]);
-      const minuten = parseFloat(parts[1]);
-
-      if (isNaN(uren) || isNaN(minuten)) {
-        document.getElementById('resultaat').textContent = 'Ongeldige invoer. Gebruik het formaat uu:mm (bijv. 86:03)';
+      if (isNaN(uren) || isNaN(minuten) || minuten >= 60) {
+        document.getElementById('resultaat').textContent = 'Ongeldige invoer. Gebruik het formaat uu:mm of uu.mm (bijv. 86:03 of 86.03)';
         return;
       }
 
-      const totaalUren = uren + (minuten / 60);
-      const werkdagUren = 7.6;
-      const resterendeUren = totaalUren - (dagenAftrekken * werkdagUren);
-
-      const volledigeDagen = Math.floor(resterendeUren / werkdagUren);
-      const overgeblevenUren = resterendeUren % werkdagUren;
-      const urenDeel = Math.floor(overgeblevenUren);
-      const minutenDeel = Math.round((overgeblevenUren % 1) * 60);
+      // Stap 1: Omzetten naar totale minuten
+      const totaleMinuten = (uren * 60) + minuten;
+      // Stap 2: Delen door 456 minuten per dag
+      const totaleDagen = totaleMinuten / 456;
+      // Stap 3: Aftrekken van rustdagen
+      const oppDagen = totaleDagen - dagenAftrekken;
 
       const resultaat = document.getElementById('resultaat');
-
-      if (resterendeUren < 0) {
-        resultaat.textContent = `Let op: je hebt een negatief saldo van ${Math.abs(resterendeUren).toFixed(2)} uur.`;
+      if (oppDagen < 0) {
+        resultaat.textContent = `Let op: je hebt een negatief OPP-saldo van ${Math.abs(oppDagen).toFixed(2)} dagen.`;
       } else {
-        resultaat.textContent = `Resterende tijd: ${resterendeUren.toFixed(2)} uur → ${volledigeDagen} dagen, ${urenDeel} uur, ${minutenDeel} minuten`;
+        resultaat.textContent = `Aantal OPP-dagen: ${oppDagen.toFixed(2)}`;
       }
     }
   </script>
