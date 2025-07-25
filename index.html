@@ -1,55 +1,92 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Bereken je resterende recup uren met de VCET-calculator." />
-  <meta name="keywords" content="recup uren, VCET, calculator, rustdagen" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <title>VCET Recup Calculator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bereken je resterende recup uren met de VCET-calculator.">
+  <meta name="keywords" content="recup uren, VCET, calculator, rustdagen">
+  <title>Resterende Recup Uren Berekenen</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R9DG11SG16"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R9DG11SG16');
+  </script>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
       margin: 2em;
-      background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+      background: linear-gradient(135deg, #2c3e50, #3498db);
       color: #ffffff;
       text-align: center;
+    }
+    .logo {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .logo a {
+      display: inline-block;
     }
     .logo img {
       max-width: 200px;
       cursor: pointer;
     }
-    input, label {
+    label, input {
       display: block;
       margin: 10px auto;
+      text-align: left;
       width: 250px;
-      padding: 8px;
+      padding: 5px;
+    }
+    input:invalid {
+      border: 2px solid #ff0000;
+    }
+    input:valid {
+      border: 2px solid #4CAF50;
     }
     button {
       margin-top: 10px;
-      padding: 10px 16px;
+      padding: 8px 12px;
       background-color: #4CAF50;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s, transform 0.1s;
     }
     button:hover {
       background-color: #45a049;
+    }
+    button:active {
+      transform: scale(0.95);
     }
     #resultaat {
       margin-top: 20px;
       font-weight: bold;
       padding: 10px;
+      border: 1px solid #ddd;
       border-radius: 5px;
       background-color: rgba(255, 255, 255, 0.1);
-      display: none;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
     @media (max-width: 600px) {
+      body {
+        margin: 1em;
+      }
       input, label {
         width: 100%;
-        max-width: 90%;
+        max-width: 200px;
+        margin-left: auto;
+        margin-right: auto;
       }
     }
   </style>
@@ -57,82 +94,86 @@
 <body>
   <div class="logo">
     <a href="fun.html">
-      <img src="vcet-logo.png" alt="VCET Logo" />
+      <img src="vcet-logo.png" alt="VCET Logo">
     </a>
   </div>
   <h2>Resterende Recup Uren Berekenen</h2>
 
-  <label for="saldo">Saldo tijd (uu:mm of uu.mm):</label>
-  <input type="text" id="saldo" placeholder="86:03 of 86.03" required />
+  <label>Saldo tijd (uren:minuten), bijv. <strong>86:03</strong> of <strong>86.03</strong>:<br><small>(max 59 min)</small></label>
+  <input type="text" id="saldo" placeholder="uu:mm of uu.mm" pattern="\d{1,3}:[0-5][0-9]|\d{1,3}\.[0-5][0-9]" required oninput="validateInput(this)">
 
-  <label for="dagen">Aantal rustdagen:</label>
-  <input type="number" id="dagen" min="0" required />
+  <label>Rustdagen aftrekken:</label>
+  <input type="number" id="dagen" min="0" required oninput="validateInput(this)">
 
   <button onclick="bereken()">Bereken</button>
   <button onclick="shareUrl()">Deel deze calculator</button>
-  <button onclick="downloadResult()">Download resultaat</button>
+  <p style="font-size: 0.9em; color: #bbb;">Voer je saldo in en het aantal rustdagen, klik op 'Bereken' om het resterende recup-saldo te zien.</p>
 
   <div id="resultaat"></div>
 
   <script>
-    function shareUrl() {
-      navigator.clipboard.writeText(window.location.href).then(() =>
-        alert('Link gekopieerd!'));
+    function validateInput(input) {
+      if (input.id === 'saldo') {
+        const valid = input.value.match(/\d{1,3}:[0-5][0-9]|\d{1,3}\.[0-5][0-9]/) !== null;
+        input.setCustomValidity(valid ? '' : 'Gebruik uu:mm of uu.mm (bijv. 86:03 of 86.03)');
+      } else if (input.id === 'dagen') {
+        const valid = input.value >= 0;
+        input.setCustomValidity(valid ? '' : 'Rustdagen moeten 0 of hoger zijn');
+      }
     }
 
-    function downloadResult() {
-      const tekst = document.getElementById('resultaat').innerText;
-      const blob = new Blob([tekst], { type: 'text/plain' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'vcet-resultaat.txt';
-      link.click();
+    function shareUrl() {
+      navigator.clipboard.writeText(window.location.href).then(() => alert('Link gekopieerd!'));
     }
 
     function bereken() {
       const saldoInput = document.getElementById('saldo').value.trim();
       const dagenAftrekken = parseFloat(document.getElementById('dagen').value) || 0;
-      let uren, minuten;
 
+      let uren, minuten;
       if (saldoInput.includes(':')) {
-        [uren, minuten] = saldoInput.split(':').map(Number);
+        const parts = saldoInput.split(':');
+        if (parts.length !== 2) {
+          document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm of uu.mm (bijv. 86:03 of 86.03)';
+          return;
+        }
+        uren = parseFloat(parts[0]);
+        minuten = parseFloat(parts[1]);
       } else if (saldoInput.includes('.')) {
-        [uren, minuten] = saldoInput.split('.').map(Number);
+        const parts = saldoInput.split('.');
+        if (parts.length !== 2) {
+          document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm of uu.mm (bijv. 86:03 of 86.03)';
+          return;
+        }
+        uren = parseFloat(parts[0]);
+        minuten = parseFloat(parts[1]);
       } else {
-        toonResultaat('Gebruik het formaat uu:mm of uu.mm (bijv. 86:03)');
+        document.getElementById('resultaat').textContent = 'Voer de tijd in als uu:mm of uu.mm (bijv. 86:03 of 86.03)';
         return;
       }
 
       if (isNaN(uren) || isNaN(minuten) || minuten >= 60) {
-        toonResultaat('Ongeldige invoer. Minuten moeten tussen 00 en 59 liggen.');
+        document.getElementById('resultaat').textContent = 'Ongeldige invoer. Gebruik het formaat uu:mm of uu.mm (bijv. 86:03 of 86.03)';
         return;
       }
 
-      const totaleUren = uren + minuten / 60;
+      const totaleUren = uren + (minuten / 60);
       const werkdagUren = 7.6;
-      const resterendeUren = totaleUren - dagenAftrekken * werkdagUren;
+      const resterendeUren = totaleUren - (dagenAftrekken * werkdagUren);
 
       const volledigeDagen = Math.floor(resterendeUren / werkdagUren);
-      const overUren = resterendeUren % werkdagUren;
-      const urenDeel = Math.floor(overUren);
-      const minutenDeel = Math.round((overUren % 1) * 60);
+      const overgeblevenUren = resterendeUren % werkdagUren;
+      const urenDeel = Math.floor(overgeblevenUren);
+      const minutenDeel = Math.round((overgeblevenUren % 1) * 60);
 
+      const resultaat = document.getElementById('resultaat');
       if (resterendeUren < 0) {
-        toonResultaat(`Negatief saldo: -${Math.abs(resterendeUren).toFixed(2)} uur.`);
+        resultaat.textContent = `Let op: je hebt een negatief saldo van ${Math.abs(resterendeUren).toFixed(2)} uur.`;
       } else {
-        toonResultaat(`Resterend: ${resterendeUren.toFixed(2)} uur → ${volledigeDagen} dagen, ${urenDeel} uur, ${minutenDeel} min`);
+        resultaat.textContent = `Resterende tijd: ${resterendeUren.toFixed(2)} uur → ${volledigeDagen} dagen, ${urenDeel} uur, ${minutenDeel} minuten`;
       }
-    }
 
-    function toonResultaat(tekst) {
-      const el = document.getElementById('resultaat');
-      el.textContent = tekst;
-      el.style.display = 'block';
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
+      resultaat.scrollIntoView({ behavior: 'smooth' });
     }
   </script>
 </body>
