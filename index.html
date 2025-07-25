@@ -3,33 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Bereken je resterende recup uren met de VCET-calculator." />
-  <meta name="keywords" content="recup uren, VCET, calculator, rustdagen" />
+  <meta name="description" content="Bereken je resterende recup uren met de VCET-calculator.">
   <meta name="theme-color" content="#2c3e50" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <title>VCET Recup Uren</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>VCET Recup Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #2c3e50;
-      --fg: #ffffff;
-      --btn: #4CAF50;
-      --btn-hover: #45a049;
-    }
-
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #ecf0f1;
-        --fg: #2c3e50;
-      }
+      --bg-color: #2c3e50;
+      --accent-color: #3498db;
+      --text-color: #ffffff;
     }
 
     body {
       font-family: 'Roboto', sans-serif;
-      margin: 1.5em;
-      background: var(--bg);
-      color: var(--fg);
+      margin: 2em;
+      background: linear-gradient(135deg, var(--bg-color), var(--accent-color));
+      color: var(--text-color);
       text-align: center;
     }
 
@@ -55,23 +47,27 @@
     }
 
     input:valid {
-      border: 2px solid var(--btn);
+      border: 2px solid #4CAF50;
     }
 
     button {
       margin: 8px 5px;
-      padding: 10px 14px;
-      font-size: 1em;
-      background-color: var(--btn);
+      padding: 10px 15px;
+      background-color: #4CAF50;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s, transform 0.1s;
     }
 
     button:hover {
-      background-color: var(--btn-hover);
+      background-color: #45a049;
+    }
+
+    button:active {
+      transform: scale(0.97);
     }
 
     #resultaat {
@@ -89,17 +85,22 @@
       to { opacity: 1; }
     }
 
+    @keyframes pulse {
+      0%   { background-color: rgba(255,255,255,0.1); }
+      50%  { background-color: rgba(255,255,255,0.3); }
+      100% { background-color: rgba(255,255,255,0.1); }
+    }
+
     @media (max-width: 600px) {
       body {
         margin: 1em;
       }
+
       input, label {
-        width: 90%;
-        max-width: 250px;
-      }
-      button {
-        width: 90%;
-        max-width: 250px;
+        width: 100%;
+        max-width: 200px;
+        margin-left: auto;
+        margin-right: auto;
       }
     }
   </style>
@@ -113,29 +114,28 @@
 
   <h2>Resterende Recup Uren Berekenen</h2>
 
-  <label>Saldo tijd (uren:minuten), bijv. <strong>86:03</strong> of <strong>86.03</strong>:</label>
+  <label for="saldo">Saldo tijd (uren:minuten), bijv. <strong>86:03</strong> of <strong>86.03</strong>:<br><small>(max 59 min)</small></label>
   <input type="text" id="saldo" placeholder="uu:mm of uu.mm" pattern="\d{1,3}:[0-5][0-9]|\d{1,3}\.[0-5][0-9]" required oninput="validateInput(this)">
 
-  <label>Rustdagen aftrekken:</label>
+  <label for="dagen">Rustdagen aftrekken:</label>
   <input type="number" id="dagen" min="0" required oninput="validateInput(this)">
 
   <button onclick="bereken()">Bereken</button>
   <button onclick="download()">Download resultaat</button>
   <button onclick="shareUrl()">Deel deze calculator</button>
 
-  <p style="font-size: 0.9em; color: #bbb;">Voer je saldo in en het aantal rustdagen, klik op 'Bereken'.</p>
+  <p style="font-size: 0.9em; color: #bbb;">Voer je saldo in en het aantal rustdagen, klik op 'Bereken' om het resterende recup-saldo te zien.</p>
 
   <div id="resultaat"></div>
 
   <script>
-    let laatsteResultaat = '';
-
     function validateInput(input) {
       if (input.id === 'saldo') {
         const valid = input.value.match(/\d{1,3}:[0-5][0-9]|\d{1,3}\.[0-5][0-9]/) !== null;
         input.setCustomValidity(valid ? '' : 'Gebruik uu:mm of uu.mm');
       } else if (input.id === 'dagen') {
-        input.setCustomValidity(input.value >= 0 ? '' : 'Moet 0 of hoger zijn');
+        const valid = input.value >= 0;
+        input.setCustomValidity(valid ? '' : 'Rustdagen moeten 0 of hoger zijn');
       }
     }
 
@@ -144,15 +144,20 @@
     }
 
     function download() {
-      if (!laatsteResultaat) {
-        alert('Bereken eerst het resultaat.');
+      const resultaat = document.getElementById("resultaat").textContent;
+      if (!resultaat.trim()) {
+        alert("Geen resultaat om te downloaden.");
         return;
       }
-      const blob = new Blob([laatsteResultaat], { type: 'text/plain' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'vcet-recup-saldo.txt';
-      link.click();
+      const blob = new Blob([resultaat], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vcet-resultaat.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     function bereken() {
@@ -160,19 +165,15 @@
       const dagenAftrekken = parseFloat(document.getElementById('dagen').value) || 0;
 
       let uren, minuten;
-      if (saldoInput.includes(':')) {
-        [uren, minuten] = saldoInput.split(':').map(Number);
-      } else if (saldoInput.includes('.')) {
-        [uren, minuten] = saldoInput.split('.').map(Number);
-      } else {
-        toonResultaat('Gebruik uu:mm of uu.mm');
-        return;
-      }
+      if (saldoInput.includes(':') || saldoInput.includes('.')) {
+        const sep = saldoInput.includes(':') ? ':' : '.';
+        const parts = saldoInput.split(sep);
+        if (parts.length !== 2) return foutmelding();
+        uren = parseFloat(parts[0]);
+        minuten = parseFloat(parts[1]);
+      } else return foutmelding();
 
-      if (isNaN(uren) || isNaN(minuten) || minuten >= 60) {
-        toonResultaat('Ongeldige invoer.');
-        return;
-      }
+      if (isNaN(uren) || isNaN(minuten) || minuten >= 60) return foutmelding();
 
       const totaleUren = uren + (minuten / 60);
       const werkdagUren = 7.6;
@@ -183,22 +184,30 @@
       const urenDeel = Math.floor(overgeblevenUren);
       const minutenDeel = Math.round((overgeblevenUren % 1) * 60);
 
+      const resultaat = document.getElementById('resultaat');
       if (resterendeUren < 0) {
-        laatsteResultaat = `Negatief saldo: ${Math.abs(resterendeUren).toFixed(2)} uur.`;
+        resultaat.textContent = `Let op: je hebt een negatief saldo van ${Math.abs(resterendeUren).toFixed(2)} uur.`;
       } else {
-        laatsteResultaat = `Resterend: ${resterendeUren.toFixed(2)} uur → ${volledigeDagen} dagen, ${urenDeel} uur, ${minutenDeel} min.`;
+        resultaat.textContent = `Resterende tijd: ${resterendeUren.toFixed(2)} uur → ${volledigeDagen} dagen, ${urenDeel} uur, ${minutenDeel} minuten`;
       }
-      toonResultaat(laatsteResultaat);
+
+      resultaat.style.animation = "none";
+      void resultaat.offsetWidth;
+      resultaat.style.animation = "pulse 0.5s ease-in-out";
+      resultaat.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
-    function toonResultaat(tekst) {
-      const r = document.getElementById('resultaat');
-      r.textContent = tekst;
-      r.style.opacity = 1;
+    function foutmelding() {
+      document.getElementById('resultaat').textContent = 'Ongeldige invoer. Gebruik het formaat uu:mm of uu.mm';
     }
 
+    // PWA: registreer service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        console.log('Service Worker geregistreerd:', reg.scope);
+      }).catch(err => {
+        console.error('Service Worker fout:', err);
+      });
     }
   </script>
 </body>
