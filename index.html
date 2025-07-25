@@ -10,20 +10,38 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <title>VCET Recup Uren</title>
   <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #2c3e50;
+      --fg: #ffffff;
+      --btn: #4CAF50;
+      --btn-hover: #45a049;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #ecf0f1;
+        --fg: #2c3e50;
+      }
+    }
+
     body {
       font-family: 'Roboto', sans-serif;
       margin: 1.5em;
-      background: linear-gradient(135deg, #2c3e50, #3498db);
-      color: #ffffff;
+      background: var(--bg);
+      color: var(--fg);
       text-align: center;
     }
+
     .logo {
       margin-bottom: 20px;
     }
+
     .logo img {
       max-width: 200px;
       cursor: pointer;
     }
+
     label, input {
       display: block;
       margin: 10px auto;
@@ -31,26 +49,31 @@
       width: 250px;
       padding: 5px;
     }
+
     input:invalid {
       border: 2px solid #ff0000;
     }
+
     input:valid {
-      border: 2px solid #4CAF50;
+      border: 2px solid var(--btn);
     }
+
     button {
       margin: 8px 5px;
       padding: 10px 14px;
       font-size: 1em;
-      background-color: #4CAF50;
+      background-color: var(--btn);
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       transition: background-color 0.3s;
     }
+
     button:hover {
-      background-color: #45a049;
+      background-color: var(--btn-hover);
     }
+
     #resultaat {
       margin-top: 20px;
       font-weight: bold;
@@ -61,9 +84,11 @@
       opacity: 0;
       animation: fadeIn 0.5s forwards;
     }
+
     @keyframes fadeIn {
       to { opacity: 1; }
     }
+
     @media (max-width: 600px) {
       body {
         margin: 1em;
@@ -172,7 +197,6 @@
       r.style.opacity = 1;
     }
 
-    // PWA service worker registreren
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
